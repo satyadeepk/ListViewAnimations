@@ -15,6 +15,7 @@
  */
 package com.haarman.listviewanimations.itemmanipulation;
 
+import android.os.Bundle;
 import android.widget.AbsListView;
 import android.widget.ListView;
 
@@ -34,5 +35,22 @@ public interface OnDismissCallback {
 	 *            An array of positions to dismiss, sorted in descending order
 	 *            for convenience.
 	 */
+	/**
+	 * The callback when animateDismiss() is called without any bundle.
+	 * 
+	 * Deprecated, use the method with bundleToCallback instead.
+	 * @param listView
+	 * @param reverseSortedPositions
+	 */	
+	@Deprecated
 	void onDismiss(AbsListView listView, int[] reverseSortedPositions);
+	
+	/**
+	 * The callback when animateDismiss() is called along with a bundle
+	 * @param listView
+	 * @param reverseSortedPositions
+	 * @param bundleToCallback
+	 */
+	void onDismiss(AbsListView listView, int[] reverseSortedPositions, Bundle bundleToCallback);
+		
 }

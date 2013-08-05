@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -51,12 +52,33 @@ public class AnimateDismissAdapter<T> extends BaseAdapterDecorator {
 		super(baseAdapter);
 		mCallback = callback;
 	}
-
+	/**
+	 * Deprecated, use the method with bundleToCallback instead
+	 * @param index
+	 */
+	@Deprecated
 	public void animateDismiss(int index) {
 		animateDismiss(Arrays.asList(index));
+	}	
+	
+	public void animateDismiss(int index, Bundle bundleToCallback){
+		animateDismiss(Arrays.asList(index), bundleToCallback);
 	}
 
+	/**
+	 * Deprecated, use the method with bundleToCallback instead
+	 * @param positions
+	 */
+	@Deprecated
 	public void animateDismiss(Collection<Integer> positions) {
+		animateDismiss(positions, null, false);
+	}
+
+	public void animateDismiss(Collection<Integer> positions, Bundle bundleToCallback) {
+		animateDismiss(positions, bundleToCallback, true);
+	}
+
+	private void animateDismiss(Collection<Integer> positions, final Bundle bundleToCallback, final boolean hasBundle) {
 		final List<Integer> positionsCopy = new ArrayList<Integer>(positions);
 		if(getAbsListView() == null) {
 			throw new IllegalStateException("Call setListView() on this AnimateDismissAdapter before calling setAdapter()!");
@@ -90,7 +112,7 @@ public class AnimateDismissAdapter<T> extends BaseAdapterDecorator {
 
 				@Override
 				public void onAnimationEnd(Animator arg0) {
-					invokeCallback(positionsCopy);
+					invokeCallback(positionsCopy, bundleToCallback, hasBundle);
 				}
 
 				@Override
@@ -99,20 +121,25 @@ public class AnimateDismissAdapter<T> extends BaseAdapterDecorator {
 			});
 			animatorSet.start();
 		} else {
-			invokeCallback(positionsCopy);
+			invokeCallback(positionsCopy, bundleToCallback, hasBundle);
 		}
 	}
 
-	private void invokeCallback(Collection<Integer> positions) {
+
+	private void invokeCallback(Collection<Integer> positions, Bundle bundleToCallback, boolean hasBundle) {
 		ArrayList<Integer> positionsList = new ArrayList<Integer>(positions);
 		Collections.sort(positionsList);
 		int[] dismissPositions = new int[positionsList.size()];
 		for (int i = 0; i < positionsList.size(); i++) {
 			dismissPositions[i] = positionsList.get(positionsList.size() - 1 - i);
 		}
-		mCallback.onDismiss(getAbsListView(), dismissPositions);
+		if(hasBundle)
+			mCallback.onDismiss(getAbsListView(), dismissPositions, bundleToCallback);
+		else
+			mCallback.onDismiss(getAbsListView(), dismissPositions);
 	}
 
+	
 	private List<View> getVisibleViewsForPositions(Collection<Integer> positions) {
 		List<View> views = new ArrayList<View>();
 		for (int i = 0; i < getAbsListView().getChildCount(); i++) {
