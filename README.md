@@ -1,5 +1,6 @@
 ListViewAnimations ([Play Store Demo][1])
 ===========
+*Note:* Use [satyadeepk/dev][12] branch for the latest fixes on the ContextualUndoAdapter.
 
 ListViewAnimations is an Open Source Android library that allows developers to easily create ListViews with animations.
 Feel free to use it all you want in your Android apps provided that you cite this project and include the license in your app.
@@ -125,3 +126,4 @@ License
  [9]: https://play.google.com/store/apps/details?id=com.niek.runningapp
  [10]: https://play.google.com/store/apps/details?id=com.rentalcars.handset
  [11]: https://play.google.com/store/apps/details?id=sa.voorleesVerhaaltjes
+ [12]: https://github.com/satyadeepk/ListViewAnimations/tree/dev
