@@ -63,6 +63,7 @@ public class ContextualUndoAdapter extends BaseAdapterDecorator implements Conte
 	private long mDismissStartMillis;
 
 	private ContextualUndoView mCurrentRemovedView;
+	private ContextualUndoView mPreviousRemovedView;
 	private long mCurrentRemovedId;
 
 	private Map<View, Animator> mActiveAnimators = new ConcurrentHashMap<View, Animator>();
@@ -75,6 +76,8 @@ public class ContextualUndoAdapter extends BaseAdapterDecorator implements Conte
 	private CountDownFormatter mCountDownFormatter;
 
 	private ContextualUndoListViewTouchListener mContextualUndoListViewTouchListener;
+	private int mPreviousPosition;
+	private boolean mFastRemoveView;
 
 	/**
 	 * Create a new ContextualUndoAdapter based on given parameters.
@@ -174,11 +177,15 @@ public class ContextualUndoAdapter extends BaseAdapterDecorator implements Conte
 	}
 
 	@Override
-	public void onViewSwiped(View dismissView, int dismissPosition) {
+	public void onViewSwiped(View dismissView, final int dismissPosition) {
 		ContextualUndoView contextualUndoView = (ContextualUndoView) dismissView;
 		if (contextualUndoView.isContentDisplayed()) {
 			restoreViewPosition(contextualUndoView);
 			contextualUndoView.displayUndo();
+			if (mCurrentRemovedView != null)
+				mFastRemoveView = true;			
+			else
+				mFastRemoveView = false;
 			removePreviousContextualUndoIfPresent();
 			setCurrentRemovedView(contextualUndoView);
 
@@ -186,6 +193,7 @@ public class ContextualUndoAdapter extends BaseAdapterDecorator implements Conte
 				startAutoDeleteTimer();
 			}
 		} else {
+			mFastRemoveView = false;
 			performRemovalIfNecessary();
 		}
 	}
@@ -207,7 +215,7 @@ public class ContextualUndoAdapter extends BaseAdapterDecorator implements Conte
 	}
 
 	private void removePreviousContextualUndoIfPresent() {
-		if (mCurrentRemovedView != null) {
+		if (mCurrentRemovedView != null) {			
 			performRemovalIfNecessary();
 		}
 	}
@@ -388,11 +396,16 @@ public class ContextualUndoAdapter extends BaseAdapterDecorator implements Conte
 		private void deleteCurrentItem() {
 			int position = getAbsListView().getPositionForView(mDismissView);
 
+			if (mFastRemoveView && position > mPreviousPosition){
+				position--;
+			}
+			
 			if (getAbsListView() instanceof ListView) {
 				position -= ((ListView) getAbsListView()).getHeaderViewsCount();
 			}
 
 			mDeleteItemCallback.deleteItem(position);
+			mPreviousPosition = position;
 		}
 	}
 
